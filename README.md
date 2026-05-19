@@ -108,6 +108,10 @@ tests/          unittest coverage
 tasks/          harness artifacts and phase history
 ```
 
+## Roadmap
+
+Remaining development work is tracked in `docs/roadmap.md`. The current service is presentation-ready as a local competition demo, while public beta and production launch still require deployment, account isolation, privacy policy work, real-document fixtures, CI, and operational hardening.
+
 ## MVP Boundaries
 
 Implemented now:
