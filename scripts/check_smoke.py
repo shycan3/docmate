@@ -44,6 +44,7 @@ def main() -> None:
             )
             assert analysis["eligibility"]["status"] == "eligible"
             assert analysis["actions"]
+            assert analysis["evidence"]
             assert analysis["id"]
 
             history = get_json(f"{base_url}/api/analyses")

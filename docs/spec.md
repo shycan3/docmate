@@ -53,6 +53,10 @@ Core outcomes:
 - Actionable checklist items with optional related URLs.
 - Immediate actions for opening the application page and registering the deadline.
 - Local analysis history for previously analyzed documents.
+- Source evidence snippets that connect extracted fields and warnings back to the original text.
+- Side-by-side comparison for two saved analysis results.
+- Markdown export for the current analysis result.
+- Presentation demo mode for built-in samples.
 
 ## Primary User Flow
 
@@ -84,6 +88,12 @@ Core outcomes:
 - The system must detect and surface critical risk language when present in the source text.
 - The warning list must prioritize issues that can cause submission failure or disqualification.
 
+### Evidence Display
+
+- The system must return concise source snippets for extracted fields and detected warnings.
+- Evidence snippets should be short enough for a result card and should preserve the original wording where possible.
+- The UI must show evidence near the analysis result so users can verify the basis for the recommendation.
+
 ### Checklist Generation
 
 - The system must convert required documents and application steps into action-oriented checklist items.
@@ -103,6 +113,7 @@ Core outcomes:
 - The system must expose endpoints to list, retrieve, and delete saved analyses.
 - Saved history must not require login, cloud storage, or external database setup.
 - The system must not persist uploaded original files; only extracted text, profile input, and analysis output are stored.
+- Users must be able to compare two saved analyses side by side.
 
 ## Non-Goals
 

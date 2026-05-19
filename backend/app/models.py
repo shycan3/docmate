@@ -123,6 +123,20 @@ class WarningItem:
 
 
 @dataclass(slots=True)
+class EvidenceItem:
+    label: str
+    snippet: str
+    kind: str = "extraction"
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "label": self.label,
+            "snippet": self.snippet,
+            "kind": self.kind,
+        }
+
+
+@dataclass(slots=True)
 class ChecklistItem:
     title: str
     description: str
@@ -153,6 +167,7 @@ class AnalysisResult:
     extraction: DocumentExtraction
     eligibility: EligibilityResult
     warnings: list[WarningItem] = field(default_factory=list)
+    evidence: list[EvidenceItem] = field(default_factory=list)
     checklist: list[ChecklistItem] = field(default_factory=list)
     actions: list[ActionLink] = field(default_factory=list)
 
@@ -161,6 +176,7 @@ class AnalysisResult:
             "extraction": self.extraction.to_dict(),
             "eligibility": self.eligibility.to_dict(),
             "warnings": [item.to_dict() for item in self.warnings],
+            "evidence": [item.to_dict() for item in self.evidence],
             "checklist": [item.to_dict() for item in self.checklist],
             "actions": [item.to_dict() for item in self.actions],
         }

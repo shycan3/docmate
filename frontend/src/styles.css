@@ -159,13 +159,14 @@ h3 {
 
 .overview-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) repeat(3, minmax(130px, 170px));
+  grid-template-columns: minmax(0, 1fr) repeat(3, minmax(130px, 160px)) minmax(170px, 210px);
   gap: 12px;
   margin-bottom: 18px;
 }
 
 .overview-panel,
-.overview-metric {
+.overview-metric,
+.overview-actions {
   min-height: 96px;
   padding: 16px;
   border: 1px solid var(--line);
@@ -201,6 +202,18 @@ h3 {
   color: var(--ink);
   font-size: 26px;
   line-height: 1;
+}
+
+.overview-actions {
+  display: grid;
+  gap: 10px;
+  align-content: center;
+}
+
+.compact-action {
+  min-height: 36px;
+  padding: 0 12px;
+  font-size: 13px;
 }
 
 .tab-bar {
@@ -704,12 +717,14 @@ h3 {
 }
 
 .warning-list,
-.checklist {
+.checklist,
+.evidence-list {
   display: grid;
   gap: 10px;
 }
 
-.warning-item {
+.warning-item,
+.evidence-item {
   display: grid;
   gap: 4px;
   min-height: 52px;
@@ -727,6 +742,27 @@ h3 {
 .warning-item.warning {
   background: var(--amber-soft);
   border-color: #f3d198;
+}
+
+.evidence-item {
+  border-left: 4px solid var(--blue);
+}
+
+.evidence-item.eligibility {
+  border-left-color: var(--green);
+}
+
+.evidence-item.critical {
+  border-left-color: var(--red);
+}
+
+.evidence-item.warning {
+  border-left-color: var(--amber);
+}
+
+.evidence-item p {
+  color: var(--text);
+  line-height: 1.55;
 }
 
 .warning-item span,
@@ -780,6 +816,17 @@ h3 {
   color: #ffffff;
 }
 
+.trust-note {
+  padding: 14px 16px;
+  border: 1px solid #f3d198;
+  border-radius: 10px;
+  background: var(--amber-soft);
+  color: #614000;
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.55;
+}
+
 .history-shell {
   display: grid;
   gap: 18px;
@@ -795,6 +842,73 @@ h3 {
   font-size: 13px;
   font-weight: 800;
   line-height: 1.5;
+}
+
+.compare-panel {
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface-soft);
+}
+
+.compare-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.compare-card {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface);
+}
+
+.compare-heading {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.compare-heading strong {
+  color: var(--ink);
+  line-height: 1.35;
+}
+
+.compare-list {
+  display: grid;
+  gap: 8px;
+}
+
+.compare-list div {
+  display: grid;
+  grid-template-columns: 84px 1fr;
+  gap: 10px;
+  padding-top: 8px;
+  border-top: 1px solid var(--line);
+}
+
+.compare-list div:first-child {
+  padding-top: 0;
+  border-top: 0;
+}
+
+.compare-list dt {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.compare-list dd {
+  margin: 0;
+  color: var(--text);
+  line-height: 1.45;
+  overflow-wrap: anywhere;
 }
 
 .history-list {
@@ -886,9 +1000,6 @@ h3 {
 }
 
 .history-delete {
-  position: absolute;
-  right: 12px;
-  bottom: 12px;
   border: 0;
   background: transparent;
   color: var(--muted);
@@ -900,6 +1011,29 @@ h3 {
 
 .history-delete:hover {
   color: var(--red);
+}
+
+.history-controls {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.history-compare {
+  min-height: 30px;
+  padding: 0 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--blue);
+  font-size: 12px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.history-compare.active {
+  background: var(--blue-soft);
+  border-color: var(--blue);
 }
 
 .empty-state {
@@ -921,7 +1055,8 @@ h3 {
   .result-grid,
   .eligibility-banner,
   .overview-grid,
-  .result-stat-grid {
+  .result-stat-grid,
+  .compare-grid {
     grid-template-columns: 1fr;
   }
 
@@ -982,5 +1117,9 @@ h3 {
   .history-delete {
     position: static;
     justify-self: start;
+  }
+
+  .compare-list div {
+    grid-template-columns: 1fr;
   }
 }

@@ -16,12 +16,14 @@ class TestAnalysisStorage(unittest.TestCase):
             warnings=[],
             checklist=[],
             actions=[],
+            evidence=[{"label": "지원 대상", "snippet": "지원 대상: 서울 거주"}],
         )
 
         result = self.storage.get(analysis_id)
         self.assertIsNotNone(result)
         self.assertEqual(result["filename"], "test.txt")
         self.assertEqual(result["profile"]["age"], 22)
+        self.assertEqual(result["evidence"][0]["label"], "지원 대상")
 
     def test_list_all(self):
         for i in range(3):

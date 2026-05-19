@@ -9,6 +9,7 @@ The implemented MVP uses a dependency-light local architecture:
 - Deterministic analysis pipeline for demo and tests
 - PyMuPDF-backed PDF text extraction with safe fallback behavior
 - Local SQLite storage for saved analysis history
+- Source evidence generation for extracted fields and warning conditions
 - Clear extension points for future FastAPI, React, and external LLM providers
 
 This is intentionally narrower than the long-term proposal. The goal of the current architecture is local reliability first.
@@ -30,7 +31,9 @@ Responsibilities:
 - Collect document and profile input
 - Call backend APIs
 - Render eligibility, extraction, warnings, checklist, and action links
+- Render source evidence, Markdown export, and the presentation demo flow
 - Render saved analysis history and load or delete past analyses
+- Compare two saved analyses from local history
 - Fall back to sample data when backend access is unavailable
 
 ### Backend
@@ -184,6 +187,7 @@ Deletes one saved analysis record.
 - `extraction`
 - `eligibility`
 - `warnings`
+- `evidence`
 - `checklist`
 - `actions`
 

@@ -10,6 +10,7 @@ from .models import (
     ActionLink,
     AnalysisResult,
     DocumentExtraction,
+    EvidenceItem,
     Profile,
     WarningItem,
 )
@@ -52,12 +53,14 @@ def analyze_document(text: str, profile: Profile) -> AnalysisResult:
     extraction = _extract_document(text)
     warnings = _detect_warnings(text)
     eligibility = evaluate_profile(extraction, profile)
+    evidence = _build_evidence(text, extraction, warnings)
     checklist = build_checklist(extraction)
     actions = _build_actions(extraction)
     return AnalysisResult(
         extraction=extraction,
         eligibility=eligibility,
         warnings=warnings,
+        evidence=evidence,
         checklist=checklist,
         actions=actions,
     )
@@ -399,6 +402,102 @@ def _detect_warnings(text: str) -> list[WarningItem]:
         if evidence:
             warnings.append(WarningItem(severity=severity, title=title, evidence=evidence))
     return warnings
+
+
+def _build_evidence(
+    text: str, extraction: DocumentExtraction, warnings: list[WarningItem]
+) -> list[EvidenceItem]:
+    evidence: list[EvidenceItem] = []
+    lines = _normalize_lines(text)
+
+    field_targets: tuple[tuple[str, str, str | list[str]], ...] = (
+        ("신청 기간", "application_period", extraction.application_period),
+        ("지원 대상", "eligibility_conditions", extraction.eligibility_conditions),
+        ("지원 내용", "benefits", extraction.benefits),
+        ("제출 서류", "required_documents", extraction.required_documents),
+        ("신청 방법", "application_method", extraction.application_method),
+        ("신청 URL", "application_url", extraction.application_url),
+    )
+    for label, field, value in field_targets:
+        snippet = _find_evidence_snippet(lines, field, value)
+        if snippet:
+            evidence.append(EvidenceItem(label=label, snippet=snippet, kind="extraction"))
+
+    for warning in warnings[:5]:
+        snippet = _find_keyword_sentence(text, warning.evidence)
+        if snippet:
+            evidence.append(
+                EvidenceItem(
+                    label=f"위험 조건: {warning.title}",
+                    snippet=snippet,
+                    kind=warning.severity,
+                )
+            )
+
+    if extraction.condition_hints:
+        condition_snippet = _find_evidence_snippet(
+            lines, "eligibility_conditions", extraction.eligibility_conditions
+        )
+        if condition_snippet:
+            evidence.append(
+                EvidenceItem(
+                    label="자격 판정 근거",
+                    snippet=condition_snippet,
+                    kind="eligibility",
+                )
+            )
+
+    return _dedupe_evidence(evidence)[:10]
+
+
+def _find_evidence_snippet(
+    lines: list[str], field: str, value: str | list[str]
+) -> str:
+    labels = _SECTION_LABELS.get(field, ())
+    for line in lines:
+        if any(label in line for label in labels):
+            return _compact_snippet(line)
+
+    values = value if isinstance(value, list) else [value]
+    for item in values:
+        if not item:
+            continue
+        needle = str(item).strip()
+        if not needle:
+            continue
+        for line in lines:
+            if needle in line:
+                return _compact_snippet(line)
+    return ""
+
+
+def _find_keyword_sentence(text: str, keyword: str) -> str:
+    if not keyword:
+        return ""
+    parts = re.split(r"(?<=[.!?。])\s+|[\n\r]+", text)
+    compact_keyword = re.sub(r"\s+", "", keyword)
+    for part in parts:
+        if keyword in part or compact_keyword in re.sub(r"\s+", "", part):
+            return _compact_snippet(part)
+    return keyword
+
+
+def _compact_snippet(text: str, max_length: int = 180) -> str:
+    cleaned = re.sub(r"\s+", " ", text).strip(" -•\t")
+    if len(cleaned) <= max_length:
+        return cleaned
+    return f"{cleaned[: max_length - 1].rstrip()}..."
+
+
+def _dedupe_evidence(items: list[EvidenceItem]) -> list[EvidenceItem]:
+    seen: set[tuple[str, str]] = set()
+    deduped: list[EvidenceItem] = []
+    for item in items:
+        key = (item.label, item.snippet)
+        if item.snippet and key not in seen:
+            seen.add(key)
+            deduped.append(item)
+    return deduped
 
 
 def _find_first_keyword(text: str, keywords: tuple[str, ...]) -> str:

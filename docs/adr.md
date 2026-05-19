@@ -102,3 +102,21 @@ Persist completed analysis records to a local SQLite database.
 - `POST /api/analyze` returns an analysis `id` when the save succeeds.
 - The frontend can list, reload, and delete saved analyses.
 - This is still local-only storage; multi-user sync remains a future extension.
+
+## ADR-007: Surface Source Evidence Before Adding Full AI Reasoning
+
+### Decision
+
+Add concise source evidence snippets to analysis results before introducing a real LLM provider.
+
+### Why
+
+- Presentation users need to trust that DocMate is grounded in the notice text.
+- Evidence snippets make rule-based extraction explainable without adding API keys.
+- This creates a compatible UI pattern for future LLM citations and confidence scoring.
+
+### Consequences
+
+- `AnalysisResult` now includes an `evidence` list.
+- Saved SQLite history stores evidence with each analysis.
+- The frontend shows evidence cards near the result summary and includes evidence in Markdown export.

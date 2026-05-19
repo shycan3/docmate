@@ -35,9 +35,13 @@ class AnalysisStorage:
                 eligibility TEXT,
                 warnings TEXT,
                 checklist TEXT,
+                evidence TEXT,
                 actions TEXT
             )
         """)
+        columns = {row[1] for row in conn.execute("PRAGMA table_info(analyses)")}
+        if "evidence" not in columns:
+            conn.execute("ALTER TABLE analyses ADD COLUMN evidence TEXT")
         conn.commit()
 
         if self.db_path != ":memory:":
@@ -53,6 +57,7 @@ class AnalysisStorage:
         warnings: list,
         checklist: list,
         actions: list,
+        evidence: list | None = None,
     ) -> str:
         """
         Save analysis result and return the ID.
@@ -66,6 +71,7 @@ class AnalysisStorage:
             warnings: List of warning dicts
             checklist: List of checklist item dicts
             actions: List of action dicts
+            evidence: List of source evidence dicts
 
         Returns:
             str: UUID of the saved analysis
@@ -85,8 +91,8 @@ class AnalysisStorage:
                 """
                 INSERT INTO analyses 
                 (id, created_at, filename, document_text, profile, 
-                 extraction, eligibility, warnings, checklist, actions)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                extraction, eligibility, warnings, checklist, evidence, actions)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
                 (
                     analysis_id,
@@ -98,6 +104,7 @@ class AnalysisStorage:
                     json.dumps(eligibility, ensure_ascii=False),
                     json.dumps(warnings, ensure_ascii=False),
                     json.dumps(checklist, ensure_ascii=False),
+                    json.dumps(evidence or [], ensure_ascii=False),
                     json.dumps(actions, ensure_ascii=False),
                 ),
             )
@@ -184,6 +191,7 @@ class AnalysisStorage:
             "eligibility": json.loads(row["eligibility"] or "{}"),
             "warnings": json.loads(row["warnings"] or "[]"),
             "checklist": json.loads(row["checklist"] or "[]"),
+            "evidence": json.loads(row["evidence"] or "[]") if "evidence" in row.keys() else [],
             "actions": json.loads(row["actions"] or "[]"),
         }
 

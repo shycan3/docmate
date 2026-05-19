@@ -27,6 +27,8 @@ class AnalysisTests(unittest.TestCase):
         self.assertEqual(result.extraction.title, "2026 서울 청년 희망장학금 공고")
         self.assertIn("주민등록초본", result.extraction.required_documents)
         self.assertGreaterEqual(len(result.warnings), 4)
+        self.assertTrue(result.evidence)
+        self.assertTrue(any("지원 대상" in item.label for item in result.evidence))
         self.assertTrue(any(action.kind == "apply" for action in result.actions))
         self.assertTrue(any(action.kind == "calendar" for action in result.actions))
 

@@ -1,6 +1,9 @@
 const state = {
   checklistDone: new Set(),
   currentAnalysisId: null,
+  currentResult: null,
+  compareIds: [],
+  historyById: new Map(),
   samples: [],
 };
 
@@ -32,9 +35,14 @@ const elements = {
   historyCount: document.querySelector("#historyCount"),
   historyMetricCount: document.querySelector("#historyMetricCount"),
   sampleMetricCount: document.querySelector("#sampleMetricCount"),
+  demoModeButton: document.querySelector("#demoModeButton"),
+  exportMarkdownButton: document.querySelector("#exportMarkdownButton"),
   historyList: document.querySelector("#historyList"),
   historySummary: document.querySelector("#historySummary"),
   refreshHistoryButton: document.querySelector("#refreshHistoryButton"),
+  comparePanel: document.querySelector("#comparePanel"),
+  compareGrid: document.querySelector("#compareGrid"),
+  clearCompareButton: document.querySelector("#clearCompareButton"),
   form: document.querySelector("#analysisForm"),
   fileInput: document.querySelector("#documentFile"),
   fileLabel: document.querySelector("#fileLabel"),
@@ -49,6 +57,8 @@ const elements = {
   saveResultButton: document.querySelector("#saveResultButton"),
   resultTitle: document.querySelector("#resultTitle"),
   resultStats: document.querySelector("#resultStats"),
+  evidenceCount: document.querySelector("#evidenceCount"),
+  evidenceList: document.querySelector("#evidenceList"),
   profileStatus: document.querySelector("#profileStatus"),
   documentStatus: document.querySelector("#documentStatus"),
   eligibilityBanner: document.querySelector("#eligibilityBanner"),
@@ -75,6 +85,20 @@ elements.tabHistory.addEventListener("click", () => {
 });
 
 elements.refreshHistoryButton.addEventListener("click", loadHistoryList);
+elements.clearCompareButton.addEventListener("click", () => {
+  state.compareIds = [];
+  renderComparePanel();
+  syncCompareButtons();
+});
+
+elements.demoModeButton.addEventListener("click", runDemoMode);
+
+elements.exportMarkdownButton.addEventListener("click", () => {
+  if (!state.currentResult) {
+    return;
+  }
+  downloadMarkdown(state.currentResult);
+});
 
 elements.saveResultButton.addEventListener("click", () => {
   if (!state.currentAnalysisId) {
@@ -137,7 +161,9 @@ elements.resetButton.addEventListener("click", () => {
   clearError();
   state.checklistDone.clear();
   state.currentAnalysisId = null;
+  state.currentResult = null;
   elements.results.classList.add("hidden");
+  elements.exportMarkdownButton.disabled = true;
   saveDraft();
   updateIntakeStatus();
   syncSelectedSampleCard();
@@ -335,7 +361,9 @@ function switchTab(tabName) {
 function renderResult(result) {
   state.checklistDone.clear();
   state.currentAnalysisId = result.id || null;
+  state.currentResult = result;
   elements.results.classList.remove("hidden");
+  elements.exportMarkdownButton.disabled = false;
   clearError();
 
   if (result.profile) {
@@ -349,6 +377,7 @@ function renderResult(result) {
   renderResultStats(result);
   renderEligibility(result.eligibility || {});
   renderMeta(extraction);
+  renderEvidence(result.evidence || []);
   renderList(elements.conditionList, extraction.eligibility_conditions);
   renderList(elements.benefitList, extraction.benefits);
   renderList(elements.documentList, extraction.required_documents);
@@ -356,6 +385,25 @@ function renderResult(result) {
   renderChecklist(result.checklist || []);
   renderActions(result.actions || []);
   elements.results.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function renderEvidence(evidence) {
+  elements.evidenceCount.textContent = `${evidence.length}개`;
+  if (!evidence.length) {
+    elements.evidenceList.innerHTML = `<p class="muted">표시할 원문 근거가 없습니다.</p>`;
+    return;
+  }
+
+  elements.evidenceList.innerHTML = evidence
+    .map(
+      (item) => `
+        <article class="evidence-item ${escapeAttribute(item.kind)}">
+          <strong>${escapeHtml(item.label)}</strong>
+          <p>${escapeHtml(item.snippet)}</p>
+        </article>
+      `
+    )
+    .join("");
 }
 
 function renderResultStats(result) {
@@ -546,12 +594,15 @@ async function loadHistoryList() {
     const response = await fetch("/api/analyses");
     const payload = await readApiResponse(response);
     const analyses = payload.analyses || [];
+    state.historyById = new Map(analyses.map((analysis) => [analysis.id, analysis]));
+    state.compareIds = state.compareIds.filter((id) => state.historyById.has(id));
     elements.historyCount.textContent = String(analyses.length);
     elements.historyMetricCount.textContent = String(analyses.length);
     elements.historySummary.textContent = analyses.length
       ? `최근 ${analyses.length}개 분석이 저장되어 있습니다. 항목을 선택하면 결과 화면으로 돌아갑니다.`
       : "저장된 결과를 불러오면 입력값과 분석 결과가 함께 복원됩니다.";
     renderHistoryList(analyses);
+    renderComparePanel();
   } catch (error) {
     elements.historyList.innerHTML = `<p class="empty-state error-text">${escapeHtml(error.message)}</p>`;
   } finally {
@@ -569,7 +620,7 @@ function renderHistoryList(analyses) {
 
   elements.historyList.querySelectorAll("[data-history-id]").forEach((item) => {
     item.addEventListener("click", (event) => {
-      if (event.target.closest("[data-delete-id]")) {
+      if (event.target.closest("[data-delete-id]") || event.target.closest("[data-compare-id]")) {
         return;
       }
       loadAnalysis(item.dataset.historyId);
@@ -582,6 +633,14 @@ function renderHistoryList(analyses) {
       deleteAnalysis(button.dataset.deleteId);
     });
   });
+
+  elements.historyList.querySelectorAll("[data-compare-id]").forEach((button) => {
+    button.addEventListener("click", (event) => {
+      event.stopPropagation();
+      toggleCompareSelection(button.dataset.compareId);
+    });
+  });
+  syncCompareButtons();
 }
 
 function renderHistoryItem(analysis) {
@@ -608,8 +667,84 @@ function renderHistoryItem(analysis) {
         <span>경고 ${warningCount}개</span>
         <span>체크리스트 ${checklistCount}개</span>
       </div>
-      <button class="history-delete" type="button" data-delete-id="${escapeAttribute(analysis.id)}">삭제</button>
+      <div class="history-controls">
+        <button class="history-compare" type="button" data-compare-id="${escapeAttribute(analysis.id)}">비교 선택</button>
+        <button class="history-delete" type="button" data-delete-id="${escapeAttribute(analysis.id)}">삭제</button>
+      </div>
     </article>
+  `;
+}
+
+function toggleCompareSelection(analysisId) {
+  if (state.compareIds.includes(analysisId)) {
+    state.compareIds = state.compareIds.filter((id) => id !== analysisId);
+  } else {
+    state.compareIds = [...state.compareIds, analysisId].slice(-2);
+  }
+  renderComparePanel();
+  syncCompareButtons();
+}
+
+function syncCompareButtons() {
+  elements.historyList.querySelectorAll("[data-compare-id]").forEach((button) => {
+    const selected = state.compareIds.includes(button.dataset.compareId);
+    button.classList.toggle("active", selected);
+    button.textContent = selected ? "선택됨" : "비교 선택";
+  });
+}
+
+function renderComparePanel() {
+  const selected = state.compareIds
+    .map((id) => state.historyById.get(id))
+    .filter(Boolean);
+
+  if (!selected.length) {
+    elements.compareGrid.innerHTML = `<p class="empty-state">히스토리에서 비교할 공고 2개를 선택하세요.</p>`;
+    return;
+  }
+
+  elements.compareGrid.innerHTML = selected.map(renderCompareCard).join("");
+  if (selected.length === 1) {
+    elements.compareGrid.insertAdjacentHTML(
+      "beforeend",
+      `<p class="empty-state">비교할 공고를 하나 더 선택하면 차이가 나란히 표시됩니다.</p>`
+    );
+  }
+}
+
+function renderCompareCard(analysis) {
+  const extraction = analysis.extraction || {};
+  const eligibility = analysis.eligibility || {};
+  const documents = extraction.required_documents || [];
+  const warnings = analysis.warnings || [];
+  const checklist = analysis.checklist || [];
+  const benefits = extraction.benefits || [];
+  const applyAction = (analysis.actions || []).find((action) => action.kind === "apply");
+
+  return `
+    <article class="compare-card">
+      <div class="compare-heading">
+        <strong>${escapeHtml(extraction.title || analysis.filename || "저장된 분석")}</strong>
+        <span class="history-status ${statusClass(eligibility.status)}">${escapeHtml(statusLabel(eligibility.status))}</span>
+      </div>
+      <dl class="compare-list">
+        ${renderCompareRow("신청 기간", extraction.application_period || "확인 필요")}
+        ${renderCompareRow("혜택", benefits.slice(0, 2).join(", ") || "확인 필요")}
+        ${renderCompareRow("제출 서류", `${documents.length}개`)}
+        ${renderCompareRow("위험 조건", `${warnings.length}개`)}
+        ${renderCompareRow("체크리스트", `${checklist.length}개`)}
+        ${renderCompareRow("신청 링크", applyAction ? "있음" : "없음")}
+      </dl>
+    </article>
+  `;
+}
+
+function renderCompareRow(label, value) {
+  return `
+    <div>
+      <dt>${escapeHtml(label)}</dt>
+      <dd>${escapeHtml(value)}</dd>
+    </div>
   `;
 }
 
@@ -651,9 +786,110 @@ async function deleteAnalysis(analysisId) {
 
   if (state.currentAnalysisId === analysisId) {
     state.currentAnalysisId = null;
+    state.currentResult = null;
     renderSaveState();
+    elements.exportMarkdownButton.disabled = true;
   }
+  state.compareIds = state.compareIds.filter((id) => id !== analysisId);
   loadHistoryList();
+}
+
+async function runDemoMode() {
+  if (!state.samples.length) {
+    await loadSampleOptions();
+  }
+  setBusy(true, "데모 실행 중");
+  elements.demoModeButton.disabled = true;
+  clearError();
+
+  try {
+    const demoResults = [];
+    for (const sample of state.samples) {
+      elements.sampleSelect.value = sample.id;
+      syncSelectedSampleCard();
+      await applySelectedSampleProfile();
+      const result = await analyze({ useSample: true });
+      demoResults.push(result);
+    }
+    const lastResult = demoResults[demoResults.length - 1];
+    if (lastResult) {
+      renderResult(lastResult);
+    }
+    await updateHistoryCount();
+    switchTab("history");
+    await loadHistoryList();
+    state.compareIds = demoResults.slice(-2).map((result) => result.id).filter(Boolean);
+    renderComparePanel();
+    syncCompareButtons();
+    elements.historySummary.textContent = "데모 샘플 3개 분석이 완료되었습니다. 아래 비교 패널로 발표 흐름을 바로 보여줄 수 있습니다.";
+  } catch (error) {
+    renderError(error.message);
+  } finally {
+    setBusy(false);
+    elements.demoModeButton.disabled = false;
+  }
+}
+
+function downloadMarkdown(result) {
+  const markdown = buildMarkdown(result);
+  const blob = new Blob([markdown], { type: "text/markdown;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  const title = result.extraction?.title || "docmate-analysis";
+  link.href = url;
+  link.download = `${sanitizeFilename(title)}.md`;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+}
+
+function buildMarkdown(result) {
+  const extraction = result.extraction || {};
+  const eligibility = result.eligibility || {};
+  const lines = [
+    `# ${extraction.title || "DocMate 분석 결과"}`,
+    "",
+    `- 신청 상태: ${statusLabel(eligibility.status)}`,
+    `- 신청 기간: ${extraction.application_period || "확인 필요"}`,
+    `- 신청 방법: ${extraction.application_method || "확인 필요"}`,
+    `- 신청 URL: ${extraction.application_url || "없음"}`,
+    "",
+    "## 지원 대상",
+    ...markdownList(extraction.eligibility_conditions),
+    "",
+    "## 지원 내용",
+    ...markdownList(extraction.benefits),
+    "",
+    "## 준비 서류",
+    ...markdownList(extraction.required_documents),
+    "",
+    "## 위험 조건",
+    ...markdownList((result.warnings || []).map((warning) => `${warning.title}: ${warning.evidence}`)),
+    "",
+    "## 체크리스트",
+    ...markdownList((result.checklist || []).map((item) => item.title)),
+    "",
+    "## 원문 근거",
+    ...markdownList((result.evidence || []).map((item) => `${item.label}: ${item.snippet}`)),
+    "",
+    "> 자동 분석 결과는 신청 준비를 돕기 위한 안내입니다. 최종 제출 전에는 원문 공고와 기관 안내를 반드시 확인하세요.",
+    "",
+  ];
+  return lines.join("\n");
+}
+
+function markdownList(items = []) {
+  const values = Array.isArray(items) ? items.filter(Boolean) : [];
+  return values.length ? values.map((item) => `- ${item}`) : ["- 확인 필요"];
+}
+
+function sanitizeFilename(value) {
+  return String(value)
+    .replace(/[\\/:*?"<>|]/g, "")
+    .replace(/\s+/g, "-")
+    .slice(0, 80)
+    .toLowerCase();
 }
 
 function statusClass(status) {

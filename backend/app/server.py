@@ -117,7 +117,8 @@ class DocMateRequestHandler(BaseHTTPRequestHandler):
                 eligibility=result.eligibility.to_dict(),
                 warnings=[w.to_dict() for w in result.warnings],
                 checklist=[c.to_dict() for c in result.checklist],
-                actions=[a.to_dict() for a in result.actions]
+                actions=[a.to_dict() for a in result.actions],
+                evidence=[item.to_dict() for item in result.evidence],
             )
             payload["id"] = analysis_id  # Include ID in response
         except Exception as e:

@@ -7,8 +7,12 @@ DocMate turns scholarship and youth-policy announcements into action-ready guida
 - Extracts application period, eligibility conditions, benefits, required documents, method, and URL.
 - Compares the announcement with a user profile and returns `eligible`, `needs_review`, or `ineligible`.
 - Highlights risk conditions such as duplicate support restrictions, no-edit rules, missing-document rejection, and automatic disqualification.
+- Shows source evidence snippets so users can see why a result was produced.
 - Builds an actionable checklist with direct links.
 - Saves analysis results locally and lets the user reload or delete them from the history tab.
+- Compares two saved notices side by side from the history tab.
+- Runs a presentation demo mode that analyzes all three built-in samples and opens the comparison view.
+- Exports the current result as a Markdown checklist.
 - Provides application and Google Calendar deadline links when the document contains enough information.
 
 ## Install
@@ -71,6 +75,17 @@ The app includes three demo notices:
 - `seoul-hope-scholarship`: youth scholarship with age, region, enrollment, and income rules.
 - `graduate-talent-scholarship`: graduate scholarship with document and no-edit risks.
 - `busan-youth-living-fund`: youth-policy fund with strict income and job-seeker conditions.
+
+## Presentation Flow
+
+For a fast demo:
+
+1. Start the server and open `http://127.0.0.1:8000`.
+2. Click `데모 모드 실행`.
+3. The app analyzes all three samples, saves them, and opens the history comparison panel.
+4. Open one saved result to show eligibility, source evidence, warnings, checklist, and Markdown export.
+
+Latest presentation screenshots are stored under `tasks/0-docmate-mvp/artifacts/`.
 
 ## Verify
 
