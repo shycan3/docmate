@@ -23,7 +23,7 @@ For a clean rehearsal, click `데모 기록 초기화` before starting.
 
 1. Start on the main console.
    - Say: DocMate turns scholarship and youth-policy notices into eligibility guidance, warnings, and an action checklist.
-   - Point to `심사 포인트` for problem, solution, and proof.
+   - Point to the two-step flow: profile first, notice second.
 
 2. Click `데모 모드 실행`.
    - The app analyzes all three built-in samples and opens the history comparison panel.
@@ -42,7 +42,7 @@ For a clean rehearsal, click `데모 기록 초기화` before starting.
    - Say: The output can become a personal application checklist or a support-center handoff.
 
 6. Close with the trust note.
-   - Show `데이터 처리`.
+   - Open `확인 안내` if data handling comes up.
    - Say: DocMate helps users prepare, but final submission still requires checking the official notice and institution instructions.
 
 ## Backup Flow

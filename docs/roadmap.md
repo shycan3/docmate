@@ -19,9 +19,10 @@ Presentation hardening completed on 2026-05-19:
 
 - 10 persona-based browser runs were documented in `docs/persona-feedback.md`.
 - 5 judge-persona critique runs were documented in `docs/judge-feedback.md`.
+- 10 art/design persona browser reviews were documented in `docs/art-design-feedback.md`.
 - A 3-5 minute live demo script was added in `docs/demo-script.md`.
 - The product now includes a presentation queue, demo history reset, sample profile hints, and keyboard activation for history items.
-- The result view now includes a judge-facing brief, decision summary, profile snapshot, comparison memo, and data-handling note.
+- The result view now includes decision summary, profile snapshot, comparison memo, and a compact data-handling disclosure.
 
 Estimated readiness by target:
 

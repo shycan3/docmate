@@ -93,6 +93,7 @@ Presentation review notes:
 
 - Persona feedback: `docs/persona-feedback.md`
 - Judge feedback: `docs/judge-feedback.md`
+- Art/design feedback: `docs/art-design-feedback.md`
 - Demo script: `docs/demo-script.md`
 
 ## Verify

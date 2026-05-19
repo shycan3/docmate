@@ -38,6 +38,7 @@ const elements = {
   demoModeButton: document.querySelector("#demoModeButton"),
   exportMarkdownButton: document.querySelector("#exportMarkdownButton"),
   clearDemoDataButton: document.querySelector("#clearDemoDataButton"),
+  demoGuide: document.querySelector("#demoGuide"),
   demoGuideStatus: document.querySelector("#demoGuideStatus"),
   demoGuideSteps: document.querySelectorAll("[data-demo-step]"),
   historyList: document.querySelector("#historyList"),
@@ -227,7 +228,6 @@ function renderSampleCards(samples) {
       (sample) => `
         <button class="sample-card" type="button" data-sample-id="${escapeAttribute(sample.id)}">
           <span>${escapeHtml(sample.label)}</span>
-          <small>${escapeHtml(sample.description || sample.filename)}</small>
           ${renderSampleProfileTags(sample.profile)}
         </button>
       `
@@ -795,10 +795,12 @@ function renderComparePanel() {
     .filter(Boolean);
 
   if (!selected.length) {
+    elements.comparePanel.classList.remove("has-selection");
     elements.compareGrid.innerHTML = `<p class="empty-state">히스토리에서 비교할 공고 2개를 선택하세요.</p>`;
     return;
   }
 
+  elements.comparePanel.classList.add("has-selection");
   elements.compareGrid.innerHTML = selected.map(renderCompareCard).join("");
   if (selected.length === 1) {
     elements.compareGrid.insertAdjacentHTML(
@@ -996,6 +998,7 @@ function setDemoGuideStage(stage) {
   const activeStep = activeStepByStage[stage] || 0;
 
   elements.demoGuideStatus.textContent = statusByStage[stage] || statusByStage.ready;
+  elements.demoGuide.classList.toggle("active", stage === "running" || stage === "complete");
   elements.demoGuideSteps.forEach((step) => {
     const stepNumber = Number(step.dataset.demoStep);
     const isComplete = stage === "complete" || (activeStep > 0 && stepNumber < activeStep);
@@ -1144,7 +1147,7 @@ function setBusy(isBusy, label = "분석 중") {
   elements.demoModeButton.disabled = isBusy;
   elements.clearDemoDataButton.disabled = isBusy;
   elements.analyzeButton.textContent = isBusy ? label : "분석하기";
-  elements.sampleButton.textContent = isBusy ? "준비 중" : "선택 샘플 분석";
+  elements.sampleButton.textContent = isBusy ? "준비 중" : "샘플로 분석";
 }
 
 function formatBytes(size) {

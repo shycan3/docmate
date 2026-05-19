@@ -39,15 +39,15 @@ Each judge performed at least one real product action:
 
 ## Implemented Changes
 
-- Added `심사 포인트` cards to the top of the console.
 - Added `판정 요약` to the result screen.
 - Added `사용 프로필` to the result screen.
 - Added `판단 메모` to comparison cards.
-- Added `데이터 처리` note to the result screen.
+- Added data-handling guidance to the result screen.
+
+Later design simplification moved broad judge-facing explanation out of the main product surface so first-time users see the two-step workflow first. Judge-facing rationale remains documented here and in the demo script.
 
 ## Remaining Judge Risks
 
 - The demo still relies on curated built-in samples, so real-world fixture breadth should be the next proof point.
 - OCR and cloud account support remain outside the local MVP.
 - A short demo video would reduce live-presentation risk.
-

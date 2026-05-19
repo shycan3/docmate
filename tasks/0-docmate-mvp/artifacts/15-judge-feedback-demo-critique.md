@@ -39,10 +39,9 @@ The full review log is in `docs/judge-feedback.md`.
 
 After the update, browser verification should confirm:
 
-- `#judgeBrief` exists on the first screen.
 - `#decisionSummary` exists after analysis.
 - `#profileSnapshot` exists after analysis.
-- `#dataPolicy` exists in the result view.
+- `확인 안내` exists in the result view.
 - Comparison cards include `판단 메모`.
 
 Screenshot: `tasks/0-docmate-mvp/artifacts/docmate-judge-feedback.png`
