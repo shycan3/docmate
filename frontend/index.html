@@ -93,20 +93,70 @@
                 <input id="age" name="age" type="number" min="0" max="120" placeholder="22" />
               </label>
               <label class="field">
-                <span>학년</span>
-                <input id="grade" name="grade" type="text" placeholder="3학년" />
+                <span>학적</span>
+                <select id="grade" name="grade">
+                  <option value="">선택</option>
+                  <option value="1학년">1학년</option>
+                  <option value="2학년">2학년</option>
+                  <option value="3학년">3학년</option>
+                  <option value="4학년">4학년</option>
+                  <option value="5학년 이상">5학년 이상</option>
+                  <option value="석사과정">석사과정</option>
+                  <option value="박사과정">박사과정</option>
+                  <option value="졸업">졸업</option>
+                </select>
               </label>
               <label class="field">
                 <span>거주지</span>
-                <input id="region" name="region" type="text" placeholder="서울" />
+                <select id="region" name="region">
+                  <option value="">선택</option>
+                  <option value="서울">서울</option>
+                  <option value="부산">부산</option>
+                  <option value="대구">대구</option>
+                  <option value="인천">인천</option>
+                  <option value="광주">광주</option>
+                  <option value="대전">대전</option>
+                  <option value="울산">울산</option>
+                  <option value="세종">세종</option>
+                  <option value="경기">경기</option>
+                  <option value="강원">강원</option>
+                  <option value="충북">충북</option>
+                  <option value="충남">충남</option>
+                  <option value="전북">전북</option>
+                  <option value="전남">전남</option>
+                  <option value="경북">경북</option>
+                  <option value="경남">경남</option>
+                  <option value="제주">제주</option>
+                </select>
               </label>
               <label class="field">
-                <span>직업</span>
-                <input id="occupation" name="occupation" type="text" placeholder="대학생" />
+                <span>현재 상태</span>
+                <select id="occupation" name="occupation">
+                  <option value="">선택</option>
+                  <option value="대학생">대학생</option>
+                  <option value="대학원생">대학원생</option>
+                  <option value="구직자">구직자</option>
+                  <option value="미취업 청년">미취업 청년</option>
+                  <option value="직장인">직장인</option>
+                  <option value="재직자">재직자</option>
+                  <option value="기타">기타</option>
+                </select>
               </label>
               <label class="field">
                 <span>소득구간</span>
-                <input id="incomeDecile" name="income_decile" type="number" min="1" max="10" placeholder="5" />
+                <select id="incomeDecile" name="income_decile">
+                  <option value="">모름</option>
+                  <option value="1">1분위</option>
+                  <option value="2">2분위</option>
+                  <option value="3">3분위</option>
+                  <option value="4">4분위</option>
+                  <option value="5">5분위</option>
+                  <option value="6">6분위</option>
+                  <option value="7">7분위</option>
+                  <option value="8">8분위</option>
+                  <option value="9">9분위</option>
+                  <option value="10">10분위</option>
+                </select>
               </label>
               <label class="field">
                 <span>재학 상태</span>

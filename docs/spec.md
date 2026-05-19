@@ -24,10 +24,10 @@ Core outcomes:
 ### Supported User Profile Fields
 
 - Age
-- Grade
-- Region
-- Occupation
-- Income decile
+- Academic status or grade, selected from a fixed list
+- Region, selected from a fixed list
+- Current occupation/status, selected from a fixed list
+- Income decile, selected from 1 to 10 or left unknown
 - Enrollment status
 
 ### Supported Outputs

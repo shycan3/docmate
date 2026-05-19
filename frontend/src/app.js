@@ -492,9 +492,9 @@ function renderDecisionSummary(result) {
 function renderProfileSnapshot(profile = {}) {
   const rows = [
     ["나이", profile.age == null ? "미입력" : `${profile.age}세`],
-    ["학년", profile.grade || "미입력"],
+    ["학적", profile.grade || "미입력"],
     ["거주지", profile.region || "미입력"],
-    ["직업", profile.occupation || "미입력"],
+    ["상태", profile.occupation || "미입력"],
     ["소득", profile.income_decile == null ? "미입력" : `${profile.income_decile}분위`],
     ["재학", formatEnrollment(profile.enrolled)],
   ];
