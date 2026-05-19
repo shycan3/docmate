@@ -89,6 +89,12 @@ For a fast demo:
 
 Latest presentation screenshots are stored under `tasks/0-docmate-mvp/artifacts/`.
 
+Presentation review notes:
+
+- Persona feedback: `docs/persona-feedback.md`
+- Judge feedback: `docs/judge-feedback.md`
+- Demo script: `docs/demo-script.md`
+
 ## Verify
 
 ```bash

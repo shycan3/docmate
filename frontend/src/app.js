@@ -60,6 +60,9 @@ const elements = {
   saveResultButton: document.querySelector("#saveResultButton"),
   resultTitle: document.querySelector("#resultTitle"),
   resultStats: document.querySelector("#resultStats"),
+  decisionSummaryStatus: document.querySelector("#decisionSummaryStatus"),
+  decisionSummaryList: document.querySelector("#decisionSummaryList"),
+  profileSnapshotList: document.querySelector("#profileSnapshotList"),
   evidenceCount: document.querySelector("#evidenceCount"),
   evidenceList: document.querySelector("#evidenceList"),
   profileStatus: document.querySelector("#profileStatus"),
@@ -409,6 +412,8 @@ function renderResult(result) {
   renderSaveState();
   renderResultStats(result);
   renderEligibility(result.eligibility || {});
+  renderDecisionSummary(result);
+  renderProfileSnapshot(result.profile || readProfile());
   renderMeta(extraction);
   renderEvidence(result.evidence || []);
   renderList(elements.conditionList, extraction.eligibility_conditions);
@@ -463,6 +468,57 @@ function renderResultStats(result) {
       `
     )
     .join("");
+}
+
+function renderDecisionSummary(result) {
+  const eligibility = result.eligibility || {};
+  const meta = statusText[eligibility.status] || statusText.needs_review;
+  const reasons = eligibility.reasons || [];
+  const missing = (eligibility.missing_information || []).map((item) => `${item} 정보가 필요합니다.`);
+  const warnings = result.warnings || [];
+  const evidence = result.evidence || [];
+  const notes = [...reasons, ...missing];
+
+  elements.decisionSummaryStatus.textContent = meta.label;
+  elements.decisionSummaryList.innerHTML = [
+    notes.length ? notes[0] : meta.body,
+    evidence.length ? `원문 근거 ${evidence.length}개로 추출 결과를 확인할 수 있습니다.` : "원문 근거가 없어 원문 확인이 필요합니다.",
+    warnings.length ? `위험 조건 ${warnings.length}개를 먼저 확인하세요.` : "탐지된 위험 조건은 없습니다.",
+  ]
+    .map((item) => `<li>${escapeHtml(item)}</li>`)
+    .join("");
+}
+
+function renderProfileSnapshot(profile = {}) {
+  const rows = [
+    ["나이", profile.age == null ? "미입력" : `${profile.age}세`],
+    ["학년", profile.grade || "미입력"],
+    ["거주지", profile.region || "미입력"],
+    ["직업", profile.occupation || "미입력"],
+    ["소득", profile.income_decile == null ? "미입력" : `${profile.income_decile}분위`],
+    ["재학", formatEnrollment(profile.enrolled)],
+  ];
+
+  elements.profileSnapshotList.innerHTML = rows
+    .map(
+      ([label, value]) => `
+        <div>
+          <dt>${escapeHtml(label)}</dt>
+          <dd>${escapeHtml(value)}</dd>
+        </div>
+      `
+    )
+    .join("");
+}
+
+function formatEnrollment(value) {
+  if (value === true) {
+    return "재학 중";
+  }
+  if (value === false) {
+    return "재학 아님";
+  }
+  return "미입력";
 }
 
 function renderSaveState() {
@@ -768,6 +824,7 @@ function renderCompareCard(analysis) {
         <span class="history-status ${statusClass(eligibility.status)}">${escapeHtml(statusLabel(eligibility.status))}</span>
       </div>
       <dl class="compare-list">
+        ${renderCompareRow("판단 메모", compareDecisionMemo(analysis))}
         ${renderCompareRow("신청 기간", extraction.application_period || "확인 필요")}
         ${renderCompareRow("혜택", benefits.slice(0, 2).join(", ") || "확인 필요")}
         ${renderCompareRow("제출 서류", `${documents.length}개`)}
@@ -777,6 +834,26 @@ function renderCompareCard(analysis) {
       </dl>
     </article>
   `;
+}
+
+function compareDecisionMemo(analysis) {
+  const status = analysis.eligibility?.status || "needs_review";
+  const extraction = analysis.extraction || {};
+  const documents = extraction.required_documents || [];
+  const warnings = analysis.warnings || [];
+  if (status === "ineligible") {
+    return "조건 불충족: 다른 공고 우선 검토";
+  }
+  if (status === "needs_review") {
+    return "추가 확인: 모호한 조건 먼저 검토";
+  }
+  if (warnings.length >= 5) {
+    return "신청 가능: 위험 조건 확인 우선";
+  }
+  if (documents.length >= 5) {
+    return "신청 가능: 서류 준비 부담 높음";
+  }
+  return "신청 가능: 바로 준비하기 좋음";
 }
 
 function renderCompareRow(label, value) {

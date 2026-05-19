@@ -46,6 +46,21 @@
         </div>
       </section>
 
+      <section class="judge-brief" id="judgeBrief" aria-label="심사 포인트">
+        <article>
+          <span>문제</span>
+          <strong>긴 공고를 읽고 자격·서류·마감 위험을 직접 해석해야 합니다.</strong>
+        </article>
+        <article>
+          <span>해결</span>
+          <strong>프로필 기준 판정, 원문 근거, 체크리스트를 한 흐름으로 묶습니다.</strong>
+        </article>
+        <article>
+          <span>검증</span>
+          <strong>로컬 데모는 API 키 없이 재현되며 결과는 히스토리와 비교로 확인됩니다.</strong>
+        </article>
+      </section>
+
       <section class="demo-guide" id="demoGuide" aria-label="발표 흐름">
         <div class="demo-guide-heading">
           <div>
@@ -181,6 +196,24 @@
 
           <div class="result-stat-grid" id="resultStats" aria-label="결과 요약"></div>
 
+          <div class="insight-grid">
+            <section class="result-section judge-insight" id="decisionSummary" aria-labelledby="decisionSummaryTitle">
+              <div class="section-title">
+                <h3 id="decisionSummaryTitle">판정 요약</h3>
+                <span id="decisionSummaryStatus"></span>
+              </div>
+              <ul class="result-list" id="decisionSummaryList"></ul>
+            </section>
+
+            <section class="result-section judge-insight" id="profileSnapshot" aria-labelledby="profileSnapshotTitle">
+              <div class="section-title">
+                <h3 id="profileSnapshotTitle">사용 프로필</h3>
+                <span>입력 기준</span>
+              </div>
+              <dl class="profile-snapshot-list" id="profileSnapshotList"></dl>
+            </section>
+          </div>
+
           <section class="result-section">
             <div class="section-title">
               <h3>원문 근거</h3>
@@ -231,6 +264,12 @@
 
           <section class="trust-note" aria-label="확인 안내">
             자동 분석 결과는 신청 준비를 돕기 위한 안내입니다. 최종 제출 전에는 원문 공고와 기관 안내를 반드시 확인하세요.
+          </section>
+
+          <section class="data-policy" id="dataPolicy" aria-label="데이터 처리 안내">
+            <strong>데이터 처리</strong>
+            <span>원본 파일은 저장하지 않고 추출 텍스트·프로필·분석 결과만 로컬 SQLite에 보관합니다.</span>
+            <span>발표 전후 `데모 기록 초기화`로 저장 기록을 지울 수 있습니다.</span>
           </section>
         </section>
       </section>

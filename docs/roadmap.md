@@ -18,8 +18,10 @@ DocMate is now strong enough for a competition-style local service demo. The cor
 Presentation hardening completed on 2026-05-19:
 
 - 10 persona-based browser runs were documented in `docs/persona-feedback.md`.
+- 5 judge-persona critique runs were documented in `docs/judge-feedback.md`.
 - A 3-5 minute live demo script was added in `docs/demo-script.md`.
 - The product now includes a presentation queue, demo history reset, sample profile hints, and keyboard activation for history items.
+- The result view now includes a judge-facing brief, decision summary, profile snapshot, comparison memo, and data-handling note.
 
 Estimated readiness by target:
 
