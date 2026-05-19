@@ -138,6 +138,10 @@ Returns saved analysis records ordered newest first.
 
 Returns one saved analysis record.
 
+### `DELETE /api/analyses`
+
+Clears all saved local analysis records and returns the number of deleted records.
+
 ### `DELETE /api/analyses/{id}`
 
 Deletes one saved analysis record.

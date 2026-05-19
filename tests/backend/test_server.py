@@ -177,6 +177,38 @@ class ServerTests(unittest.TestCase):
             request.urlopen(f"{self.base_url}/api/analyses/{analysis_id}")
         self.assertEqual(context.exception.code, 404)
 
+    def test_clear_analysis_history_endpoint(self) -> None:
+        for sample_id in ("seoul-hope-scholarship", "busan-youth-living-fund"):
+            body = json.dumps(
+                {
+                    "use_sample": True,
+                    "sample_id": sample_id,
+                    "profile": {},
+                }
+            ).encode("utf-8")
+            req = request.Request(
+                f"{self.base_url}/api/analyze",
+                data=body,
+                headers={"Content-Type": "application/json"},
+                method="POST",
+            )
+            with request.urlopen(req):
+                pass
+
+        delete_req = request.Request(
+            f"{self.base_url}/api/analyses",
+            method="DELETE",
+        )
+        with request.urlopen(delete_req) as response:
+            payload = json.loads(response.read().decode("utf-8"))
+
+        self.assertEqual(response.status, 200)
+        self.assertEqual(payload["deleted"], 2)
+
+        with request.urlopen(f"{self.base_url}/api/analyses") as response:
+            history = json.loads(response.read().decode("utf-8"))
+        self.assertEqual(history["analyses"], [])
+
     def test_static_frontend_serving(self) -> None:
         with request.urlopen(f"{self.base_url}/") as response:
             body = response.read().decode("utf-8")

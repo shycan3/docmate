@@ -129,7 +129,13 @@ class DocMateRequestHandler(BaseHTTPRequestHandler):
 
     def do_DELETE(self) -> None:
         path = urlparse(self.path).path
-        
+
+        if path == "/api/analyses":
+            storage = get_storage()
+            deleted_count = storage.clear_all()
+            self._send_json(HTTPStatus.OK, {"deleted": deleted_count})
+            return
+
         if path.startswith("/api/analyses/"):
             analysis_id = path.split("/")[-1]
             storage = get_storage()

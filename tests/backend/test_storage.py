@@ -59,6 +59,24 @@ class TestAnalysisStorage(unittest.TestCase):
         result = self.storage.get(analysis_id)
         self.assertIsNone(result)
 
+    def test_clear_all(self):
+        for i in range(2):
+            self.storage.save(
+                filename=f"test{i}.txt",
+                document_text="Text",
+                profile={},
+                extraction={},
+                eligibility={},
+                warnings=[],
+                checklist=[],
+                actions=[],
+            )
+
+        deleted = self.storage.clear_all()
+
+        self.assertEqual(deleted, 2)
+        self.assertEqual(self.storage.list_all(), [])
+
     def test_list_ordering(self):
         """Verify list returns newest first."""
         import time

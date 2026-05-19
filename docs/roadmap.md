@@ -15,6 +15,12 @@ DocMate is now strong enough for a competition-style local service demo. The cor
 - Export the current result as a Markdown checklist.
 - Run a repeatable presentation demo with built-in samples.
 
+Presentation hardening completed on 2026-05-19:
+
+- 10 persona-based browser runs were documented in `docs/persona-feedback.md`.
+- A 3-5 minute live demo script was added in `docs/demo-script.md`.
+- The product now includes a presentation queue, demo history reset, sample profile hints, and keyboard activation for history items.
+
 Estimated readiness by target:
 
 | Target | Estimate | Meaning |
@@ -143,4 +149,3 @@ DocMate should not be treated as production-ready until all of the following are
 - Unsupported or risky files fail clearly.
 - The service is deployed with HTTPS, monitoring, backups, and rollback steps.
 - Eligibility output continues to show source evidence and conservative uncertainty handling.
-

@@ -57,6 +57,7 @@ Core outcomes:
 - Side-by-side comparison for two saved analysis results.
 - Markdown export for the current analysis result.
 - Presentation demo mode for built-in samples.
+- Demo/history reset for clean local rehearsals.
 
 ## Primary User Flow
 
@@ -114,6 +115,7 @@ Core outcomes:
 - Saved history must not require login, cloud storage, or external database setup.
 - The system must not persist uploaded original files; only extracted text, profile input, and analysis output are stored.
 - Users must be able to compare two saved analyses side by side.
+- Users must be able to clear all local saved analyses before a presentation rehearsal.
 
 ## Non-Goals
 

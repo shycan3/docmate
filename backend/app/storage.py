@@ -195,8 +195,8 @@ class AnalysisStorage:
             "actions": json.loads(row["actions"] or "[]"),
         }
 
-    def clear_all(self):
-        """Clear all analyses (for testing only)."""
+    def clear_all(self) -> int:
+        """Clear all analyses and return the number of deleted rows."""
         if self.db_path == ":memory:":
             conn = self.connection
             should_close = False
@@ -205,8 +205,9 @@ class AnalysisStorage:
             should_close = True
 
         try:
-            conn.execute("DELETE FROM analyses")
+            cursor = conn.execute("DELETE FROM analyses")
             conn.commit()
+            return cursor.rowcount
         finally:
             if should_close:
                 conn.close()

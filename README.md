@@ -46,6 +46,7 @@ GET    /api/sample
 POST   /api/analyze
 GET    /api/analyses
 GET    /api/analyses/{id}
+DELETE /api/analyses
 DELETE /api/analyses/{id}
 ```
 
@@ -81,9 +82,10 @@ The app includes three demo notices:
 For a fast demo:
 
 1. Start the server and open `http://127.0.0.1:8000`.
-2. Click `데모 모드 실행`.
-3. The app analyzes all three samples, saves them, and opens the history comparison panel.
-4. Open one saved result to show eligibility, source evidence, warnings, checklist, and Markdown export.
+2. Click `데모 기록 초기화` if you want a clean rehearsal.
+3. Click `데모 모드 실행`.
+4. The app analyzes all three samples, saves them, and opens the history comparison panel.
+5. Open one saved result to show eligibility, source evidence, warnings, checklist, and Markdown export.
 
 Latest presentation screenshots are stored under `tasks/0-docmate-mvp/artifacts/`.
 

@@ -37,6 +37,9 @@ const elements = {
   sampleMetricCount: document.querySelector("#sampleMetricCount"),
   demoModeButton: document.querySelector("#demoModeButton"),
   exportMarkdownButton: document.querySelector("#exportMarkdownButton"),
+  clearDemoDataButton: document.querySelector("#clearDemoDataButton"),
+  demoGuideStatus: document.querySelector("#demoGuideStatus"),
+  demoGuideSteps: document.querySelectorAll("[data-demo-step]"),
   historyList: document.querySelector("#historyList"),
   historySummary: document.querySelector("#historySummary"),
   refreshHistoryButton: document.querySelector("#refreshHistoryButton"),
@@ -77,6 +80,7 @@ restoreDraft();
 loadSampleOptions();
 updateHistoryCount();
 updateIntakeStatus();
+setDemoGuideStage("ready");
 
 elements.tabAnalyze.addEventListener("click", () => switchTab("analyze"));
 elements.tabHistory.addEventListener("click", () => {
@@ -92,6 +96,7 @@ elements.clearCompareButton.addEventListener("click", () => {
 });
 
 elements.demoModeButton.addEventListener("click", runDemoMode);
+elements.clearDemoDataButton.addEventListener("click", clearDemoData);
 
 elements.exportMarkdownButton.addEventListener("click", () => {
   if (!state.currentResult) {
@@ -142,7 +147,6 @@ elements.sampleButton.addEventListener("click", async () => {
   clearError();
 
   try {
-    await applySelectedSampleProfile();
     const result = await analyze({ useSample: true });
     renderResult(result);
     updateHistoryCount();
@@ -167,6 +171,7 @@ elements.resetButton.addEventListener("click", () => {
   saveDraft();
   updateIntakeStatus();
   syncSelectedSampleCard();
+  setDemoGuideStage("ready");
 });
 
 elements.form.addEventListener("submit", async (event) => {
@@ -220,6 +225,7 @@ function renderSampleCards(samples) {
         <button class="sample-card" type="button" data-sample-id="${escapeAttribute(sample.id)}">
           <span>${escapeHtml(sample.label)}</span>
           <small>${escapeHtml(sample.description || sample.filename)}</small>
+          ${renderSampleProfileTags(sample.profile)}
         </button>
       `
     )
@@ -233,6 +239,32 @@ function renderSampleCards(samples) {
     });
   });
   syncSelectedSampleCard();
+}
+
+function renderSampleProfileTags(profile = {}) {
+  const tags = [];
+  if (profile.age) {
+    tags.push(`${profile.age}세`);
+  }
+  if (profile.region) {
+    tags.push(profile.region);
+  }
+  if (profile.income_decile) {
+    tags.push(`소득 ${profile.income_decile}분위`);
+  }
+  if (profile.enrolled !== undefined && profile.enrolled !== null) {
+    tags.push(profile.enrolled ? "재학" : "비재학");
+  }
+
+  if (!tags.length) {
+    return "";
+  }
+
+  return `
+    <span class="sample-profile-tags">
+      ${tags.map((tag) => `<em>${escapeHtml(tag)}</em>`).join("")}
+    </span>
+  `;
 }
 
 function syncSelectedSampleCard() {
@@ -364,6 +396,7 @@ function renderResult(result) {
   state.currentResult = result;
   elements.results.classList.remove("hidden");
   elements.exportMarkdownButton.disabled = false;
+  setDemoGuideStage("result");
   clearError();
 
   if (result.profile) {
@@ -625,6 +658,13 @@ function renderHistoryList(analyses) {
       }
       loadAnalysis(item.dataset.historyId);
     });
+    item.addEventListener("keydown", (event) => {
+      if (event.key !== "Enter" && event.key !== " ") {
+        return;
+      }
+      event.preventDefault();
+      loadAnalysis(item.dataset.historyId);
+    });
   });
 
   elements.historyList.querySelectorAll("[data-delete-id]").forEach((button) => {
@@ -799,6 +839,7 @@ async function runDemoMode() {
     await loadSampleOptions();
   }
   setBusy(true, "데모 실행 중");
+  setDemoGuideStage("running");
   elements.demoModeButton.disabled = true;
   clearError();
 
@@ -822,12 +863,68 @@ async function runDemoMode() {
     renderComparePanel();
     syncCompareButtons();
     elements.historySummary.textContent = "데모 샘플 3개 분석이 완료되었습니다. 아래 비교 패널로 발표 흐름을 바로 보여줄 수 있습니다.";
+    setDemoGuideStage("complete");
   } catch (error) {
     renderError(error.message);
+    setDemoGuideStage("ready");
   } finally {
     setBusy(false);
     elements.demoModeButton.disabled = false;
   }
+}
+
+async function clearDemoData() {
+  if (!confirm("저장된 분석 기록을 모두 삭제할까요? 현재 화면의 결과도 초기화됩니다.")) {
+    return;
+  }
+
+  elements.clearDemoDataButton.disabled = true;
+  clearError();
+
+  try {
+    const response = await fetch("/api/analyses", { method: "DELETE" });
+    const payload = await readApiResponse(response);
+    state.checklistDone.clear();
+    state.currentAnalysisId = null;
+    state.currentResult = null;
+    state.compareIds = [];
+    state.historyById = new Map();
+    elements.results.classList.add("hidden");
+    elements.exportMarkdownButton.disabled = true;
+    elements.historyList.innerHTML = `<p class="empty-state">저장된 분석이 없습니다. 샘플이나 파일을 분석하면 여기에 쌓입니다.</p>`;
+    elements.historySummary.textContent = `${payload.deleted || 0}개 기록이 삭제되었습니다. 데모 모드를 다시 실행하면 새 기록이 생성됩니다.`;
+    renderComparePanel();
+    await updateHistoryCount();
+    setDemoGuideStage("ready");
+  } catch (error) {
+    renderError(error.message);
+  } finally {
+    elements.clearDemoDataButton.disabled = false;
+  }
+}
+
+function setDemoGuideStage(stage) {
+  const statusByStage = {
+    ready: "준비됨",
+    running: "샘플 분석 중",
+    result: "결과 확인 가능",
+    complete: "비교 준비 완료",
+  };
+  const activeStepByStage = {
+    ready: 0,
+    running: 1,
+    result: 3,
+    complete: 4,
+  };
+  const activeStep = activeStepByStage[stage] || 0;
+
+  elements.demoGuideStatus.textContent = statusByStage[stage] || statusByStage.ready;
+  elements.demoGuideSteps.forEach((step) => {
+    const stepNumber = Number(step.dataset.demoStep);
+    const isComplete = stage === "complete" || (activeStep > 0 && stepNumber < activeStep);
+    step.classList.toggle("complete", isComplete);
+    step.classList.toggle("active", activeStep === stepNumber && stage !== "complete");
+  });
 }
 
 function downloadMarkdown(result) {
@@ -967,8 +1064,10 @@ function setBusy(isBusy, label = "분석 중") {
   elements.sampleButton.disabled = isBusy;
   elements.resetButton.disabled = isBusy;
   elements.sampleSelect.disabled = isBusy;
+  elements.demoModeButton.disabled = isBusy;
+  elements.clearDemoDataButton.disabled = isBusy;
   elements.analyzeButton.textContent = isBusy ? label : "분석하기";
-  elements.sampleButton.textContent = isBusy ? "준비 중" : "샘플 불러오기";
+  elements.sampleButton.textContent = isBusy ? "준비 중" : "선택 샘플 분석";
 }
 
 function formatBytes(size) {

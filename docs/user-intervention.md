@@ -18,6 +18,7 @@ The intended baseline experience is:
 - Verify final application details against the original announcement before submitting to the real institution.
 - Open external application or document-issuance links provided by the result screen.
 - Delete local history records that are no longer useful.
+- Clear all local demo/history records before a presentation rehearsal.
 - If a browser tab shows a load failure on `http://127.0.0.1:8000/api/analyses`, start the local server first and confirm `http://127.0.0.1:8000/health` returns `{ "status": "ok" }`.
 - Treat `GET /api/analyses` as a JSON history API. It is not the main UI entry point.
 
