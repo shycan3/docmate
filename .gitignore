@@ -1,0 +1,35 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Local environments
+.venv/
+venv/
+env/
+
+# Local runtime data
+docmate.db
+*.db
+*.sqlite
+*.sqlite3
+DocMate_기획서.docx
+
+# Logs and temporary files
+*.log
+*.tmp
+*.temp
+.DS_Store
+Thumbs.db
+
+# Editor and OS metadata
+.vscode/
+.idea/
+
+# Test and coverage output
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Local Codex/plugin state
+.codex/

@@ -1,0 +1,6 @@
+`phase 0`를 완료했습니다. [docs/spec.md](C:/Users/DO/Desktop/docmate/docs/spec.md:1), [docs/architecture.md](C:/Users/DO/Desktop/docmate/docs/architecture.md:1), [docs/adr.md](C:/Users/DO/Desktop/docmate/docs/adr.md:1), [docs/user-intervention.md](C:/Users/DO/Desktop/docmate/docs/user-intervention.md:1)를 새로 만들었고, 기획서 기준 MVP 범위, dependency-light 구현 방침, 보수적 자격 판정 원칙, 향후 FastAPI/React/LLM 확장 경로를 정리했습니다. `tasks/0-docmate-mvp/index.json`의 phase 0 상태도 `completed`로 갱신했습니다.
+
+검증은 phase 요구사항의 AC 커맨드로 통과했습니다:
+`python -c "from pathlib import Path; required=['docs/spec.md','docs/architecture.md','docs/adr.md','docs/user-intervention.md']; [assertion for assertion in []]; missing=[p for p in required if not Path(p).exists()]; assert not missing, missing"`
+
+참고로 `docs-diff.md`는 phase 0 지시대로 생성하지 않았습니다. 이 파일은 원래 runner 후속 단계에서 자동 생성되는 산출물입니다.
