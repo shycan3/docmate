@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=1200,initial-scale=1" />
+  <title>DocMate Presentation Mode</title>
+  <style>
+    :root{--bg:#f6f8fb;--card:#ffffff;--muted:#6b7280;--accent:#1f5fbf}
+    html,body{height:100%;margin:0;background:var(--bg);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,'Noto Sans KR',sans-serif;color:#0b1220}
+    .stage{width:1200px;margin:24px auto;padding:18px}
+    .viewport{height:720px;background:var(--card);border-radius:12px;overflow:hidden;box-shadow:0 12px 40px rgba(4,20,40,0.06);position:relative}
+    .slides{height:100%;display:flex;transition:transform 360ms ease-in-out}
+    .slide{width:1200px;flex:0 0 1200px;padding:36px;box-sizing:border-box}
+    .hero{display:flex;gap:28px}
+    .left{flex:1}
+    .right{width:420px;background:#fbfcff;border-radius:8px;padding:18px}
+    h1{margin:0;font-size:34px}
+    h2{margin:0 0 8px;font-size:20px}
+    p.lead{color:var(--muted);margin-top:8px}
+    .stat{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f0f2f5}
+    .badge{display:inline-block;padding:6px 8px;background:var(--accent);color:#fff;border-radius:6px;font-weight:600}
+    .evidence{margin-top:16px}
+    .evidence article{padding:10px;border-radius:6px;background:#fff;margin-bottom:8px}
+    .controls{position:absolute;right:18px;bottom:18px;display:flex;gap:8px}
+    .btn{background:var(--accent);color:#fff;padding:8px 12px;border-radius:8px;border:none;cursor:pointer}
+    .dotnav{position:absolute;left:18px;bottom:18px;display:flex;gap:8px}
+    .dot{width:12px;height:12px;border-radius:6px;background:#dfe7f6}
+    .dot.active{background:var(--accent)}
+    /* ensure consistent rendering for GIF capture */
+    img.screenshot { max-width:100%;display:block }
+  </style>
+</head>
+<body>
+  <div class="stage">
+    <div class="viewport" id="viewport">
+      <div class="slides" id="slides">
+        <section class="slide" id="slide-1">
+          <div class="hero">
+            <div class="left">
+              <h1>DocMate — 자동 공고 분석 데모</h1>
+              <p class="lead">규칙 기반 파이프라인으로 공고의 자격요건, 지원내용, 필요서류를 빠르게 추출합니다.</p>
+              <div style="margin-top:18px">
+                <div class="stat"><span>신청 상태</span><strong class="badge">신청 가능</strong></div>
+                <div class="stat"><span>마감</span><strong>2026-06-30</strong></div>
+                <div class="stat"><span>위험 조건</span><strong>1개</strong></div>
+              </div>
+            </div>
+            <aside class="right">
+              <h2>요약</h2>
+              <p class="lead">최대 5천만원, 멘토링 제공. 신청 URL 포함.</p>
+              <div class="evidence">
+                <article><strong>지원금</strong><p>"최대 5천만원 보조금"</p></article>
+                <article><strong>연령</strong><p>"만 19세 이상"</p></article>
+              </div>
+            </aside>
+          </div>
+        </section>
+
+        <section class="slide" id="slide-2">
+          <h2>지원 대상 · 필요 자료</h2>
+          <ul>
+            <li>만 19세 이상</li>
+            <li>창업 예정자 또는 예비창업자</li>
+          </ul>
+          <h3 style="margin-top:16px">필요 서류</h3>
+          <ol>
+            <li>사업계획서</li>
+            <li>신분증 사본</li>
+          </ol>
+        </section>
+
+        <section class="slide" id="slide-3">
+          <h2>체크리스트</h2>
+          <ul>
+            <li>사업계획서 작성</li>
+            <li>서류 스캔 업로드</li>
+            <li>온라인 접수 링크 확인</li>
+          </ul>
+        </section>
+
+        <section class="slide" id="slide-4">
+          <h2>원문 근거(샘플)</h2>
+          <article style="background:#fff;padding:12px;border-radius:8px">최대 5천만원 보조금이 지급됩니다. 만 19세 이상인 자.</article>
+        </section>
+      </div>
+
+      <div class="dotnav" id="dotnav"></div>
+      <div class="controls">
+        <button class="btn" id="prev">이전</button>
+        <button class="btn" id="next">다음</button>
+        <button class="btn" id="play">재생</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const slides = document.getElementById('slides')
+    const slideCount = slides.children.length
+    const dotnav = document.getElementById('dotnav')
+    let index = 0
+    let timer = null
+
+    for (let i=0;i<slideCount;i++){
+      const dot = document.createElement('div');dot.className='dot';dot.dataset.i=i;dotnav.appendChild(dot)
+      dot.addEventListener('click',()=>{go(i)})
+    }
+    function renderDots(){Array.from(dotnav.children).forEach((d,i)=>d.classList.toggle('active',i===index))}
+    function go(i){index=i;slides.style.transform=`translateX(${-1200*i}px)`;renderDots()}
+    document.getElementById('next').addEventListener('click',()=>go((index+1)%slideCount))
+    document.getElementById('prev').addEventListener('click',()=>go((index-1+slideCount)%slideCount))
+    document.getElementById('play').addEventListener('click',togglePlay)
+
+    function startAuto(interval=900){if(timer)clearInterval(timer);timer=setInterval(()=>{go((index+1)%slideCount)},interval)}
+    function stopAuto(){if(timer)clearInterval(timer);timer=null}
+    function togglePlay(){if(timer){stopAuto();document.getElementById('play').textContent='재생'}else{startAuto(1200);document.getElementById('play').textContent='일시정지'}}
+
+    // Auto-start when ?auto=1 or ?gif=1
+    const qs = new URLSearchParams(location.search)
+    if (qs.get('auto') === '1' || qs.get('gif') === '1'){
+      startAuto(1200)
+    }
+
+    // expose current slide for capture helpers
+    window.__presentation = {getSlideIndex: ()=>index, go, slideCount}
+  </script>
+</body>
+</html>

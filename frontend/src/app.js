@@ -36,6 +36,7 @@ const elements = {
   historyMetricCount: document.querySelector("#historyMetricCount"),
   sampleMetricCount: document.querySelector("#sampleMetricCount"),
   demoModeButton: document.querySelector("#demoModeButton"),
+  screenshotButton: document.querySelector("#screenshotButton"),
   exportMarkdownButton: document.querySelector("#exportMarkdownButton"),
   clearDemoDataButton: document.querySelector("#clearDemoDataButton"),
   demoGuide: document.querySelector("#demoGuide"),
@@ -100,6 +101,7 @@ elements.clearCompareButton.addEventListener("click", () => {
 });
 
 elements.demoModeButton.addEventListener("click", runDemoMode);
+elements.screenshotButton.addEventListener("click", toggleScreenshotMode);
 elements.clearDemoDataButton.addEventListener("click", clearDemoData);
 
 elements.exportMarkdownButton.addEventListener("click", () => {
@@ -220,6 +222,34 @@ async function loadSampleOptions() {
   } catch {
     // Keep the static fallback options from the HTML.
   }
+}
+
+function buildFakeResult() {
+  const fake = {
+    id: null,
+    filename: "데모 공고.txt",
+    extraction: {
+      title: "2026년 창업 지원사업 — 데모 공고",
+      eligibility_conditions: ["만 19세 이상", "창업 예정자 또는 예비창업자"],
+      benefits: ["최대 5천만원 보조금", "멘토링 6개월 제공"],
+      required_documents: ["사업계획서", "신분증 사본"],
+      application_period: "2026-06-01 ~ 2026-06-30",
+      application_method: "온라인 접수",
+      application_url: "https://example.org/apply",
+    },
+    eligibility: { status: "eligible", reasons: ["자격 요건 충족"] },
+    warnings: [{ title: "소득기준 확인", evidence: "소득 관련 추가 서류 필요", severity: "warning" }],
+    evidence: [
+      { kind: "benefit", label: "지원금", snippet: "최대 5천만원 보조금이 지급됩니다." },
+      { kind: "condition", label: "연령", snippet: "만 19세 이상인 자" },
+    ],
+    checklist: [
+      { title: "사업계획서 작성", description: "제출용 사업계획서를 작성합니다.", action_url: "" },
+      { title: "서류 스캔", description: "신분증 및 증빙서류 스캔", action_url: "" },
+    ],
+    actions: [{ kind: "apply", label: "신청하러 가기", url: "https://example.org/apply" }],
+  };
+  return fake;
 }
 
 function renderSampleCards(samples) {
@@ -775,7 +805,7 @@ function toggleCompareSelection(analysisId) {
   if (state.compareIds.includes(analysisId)) {
     state.compareIds = state.compareIds.filter((id) => id !== analysisId);
   } else {
-    state.compareIds = [...state.compareIds, analysisId].slice(-2);
+    state.compareIds = [...state.compareIds, analysisId].slice(-3);
   }
   renderComparePanel();
   syncCompareButtons();
@@ -922,15 +952,50 @@ async function runDemoMode() {
   elements.demoModeButton.disabled = true;
   clearError();
 
+  // helper for GIF-friendly pacing
+  function sleep(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
+  const progressEl = document.getElementById("demoProgress");
+  const progressFill = document.getElementById("demoProgressFill");
+  const progressLabel = document.getElementById("demoProgressLabel");
+  if (progressEl) {
+    progressEl.classList.remove("hidden");
+    progressFill.style.width = "0%";
+    progressLabel.textContent = "데모 시작";
+  }
+
   try {
     const demoResults = [];
-    for (const sample of state.samples) {
+    const total = state.samples.length || 3;
+    for (let i = 0; i < total; i++) {
+      const sample = state.samples[i];
       elements.sampleSelect.value = sample.id;
       syncSelectedSampleCard();
       await applySelectedSampleProfile();
+
+      // Step visual: start progress for this sample
+      if (progressFill && progressLabel) {
+        progressLabel.textContent = `분석 중: ${sample.label}`;
+        // animate to 40% to show in-progress
+        progressFill.style.width = `${Math.round(((i) / total) * 100 + 30)}%`;
+      }
+
+      // make the analysis call (this may take time)
       const result = await analyze({ useSample: true });
       demoResults.push(result);
+
+      // mark step complete
+      if (progressFill && progressLabel) {
+        progressFill.style.width = `${Math.round(((i + 1) / total) * 100)}%`;
+        progressLabel.textContent = `완료: ${sample.label}`;
+      }
+
+      // short pause to make the step visible in GIFs
+      await sleep(900);
     }
+
     const lastResult = demoResults[demoResults.length - 1];
     if (lastResult) {
       renderResult(lastResult);
@@ -938,7 +1003,7 @@ async function runDemoMode() {
     await updateHistoryCount();
     switchTab("history");
     await loadHistoryList();
-    state.compareIds = demoResults.slice(-2).map((result) => result.id).filter(Boolean);
+    state.compareIds = demoResults.slice(-3).map((result) => result.id).filter(Boolean);
     renderComparePanel();
     syncCompareButtons();
     elements.historySummary.textContent = "데모 샘플 3개 분석이 완료되었습니다. 아래 비교 패널로 발표 흐름을 바로 보여줄 수 있습니다.";
@@ -947,6 +1012,15 @@ async function runDemoMode() {
     renderError(error.message);
     setDemoGuideStage("ready");
   } finally {
+    // finalize progress bar
+    if (progressFill && progressLabel) {
+      progressFill.style.width = "100%";
+      progressLabel.textContent = "데모 완료";
+      await new Promise((r) => setTimeout(r, 600));
+    }
+    if (progressEl) {
+      progressEl.classList.add("hidden");
+    }
     setBusy(false);
     elements.demoModeButton.disabled = false;
   }
@@ -1148,6 +1222,28 @@ function setBusy(isBusy, label = "분석 중") {
   elements.clearDemoDataButton.disabled = isBusy;
   elements.analyzeButton.textContent = isBusy ? label : "분석하기";
   elements.sampleButton.textContent = isBusy ? "준비 중" : "샘플로 분석";
+}
+
+function toggleScreenshotMode() {
+  document.body.classList.toggle("screenshot-mode");
+  const enabled = document.body.classList.contains("screenshot-mode");
+  elements.screenshotButton.textContent = enabled ? "스크린샷 종료" : "스크린샷 모드";
+  // When entering screenshot mode, expand results area and run demo data if empty
+  if (enabled) {
+    if (!state.currentResult) {
+      const fake = buildFakeResult();
+      renderResult(fake);
+    }
+    // ensure results visible
+    elements.results.classList.remove("hidden");
+    // enlarge completion pill to visible
+    document.querySelectorAll('.completion-pill').forEach(el => el.classList.add('ready'));
+    // hide secondary interactive controls for clean capture (keep screenshot toggle visible)
+    document.querySelectorAll('.ghost-button, .secondary-button.compact-action:not(#screenshotButton)').forEach(btn => btn.style.display = 'none');
+  } else {
+    document.querySelectorAll('.ghost-button, .secondary-button.compact-action').forEach(btn => btn.style.display = '');
+    document.querySelectorAll('.completion-pill').forEach(el => el.classList.remove('ready'));
+  }
 }
 
 function formatBytes(size) {

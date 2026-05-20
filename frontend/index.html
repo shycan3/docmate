@@ -22,6 +22,7 @@
             Local
           </div>
           <button class="secondary-button compact-action" id="demoModeButton" type="button">데모 실행</button>
+          <button class="secondary-button compact-action" id="screenshotButton" type="button">스크린샷 모드</button>
           <button class="secondary-button compact-action" id="exportMarkdownButton" type="button" disabled>내보내기</button>
           <button class="ghost-button compact-action" id="clearDemoDataButton" type="button">초기화</button>
         </div>
@@ -66,6 +67,14 @@
           </li>
         </ol>
       </section>
+
+      <!-- Demo progress bar for GIF-friendly visualization -->
+      <div id="demoProgress" class="demo-progress hidden" aria-hidden="true">
+        <div class="demo-progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100">
+          <div class="demo-progress-fill" id="demoProgressFill" style="width:0%"></div>
+        </div>
+        <div class="demo-progress-label" id="demoProgressLabel">데모 준비</div>
+      </div>
 
       <nav class="tab-bar" role="tablist" aria-label="작업 화면">
         <button class="tab-button active" id="tabAnalyze" type="button" role="tab" aria-selected="true" aria-controls="panelAnalyze">

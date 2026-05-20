@@ -19,6 +19,8 @@ DocMate_기획서.docx
 *.log
 *.tmp
 *.temp
+test_screenshot.png
+/verify_gifs.py
 .DS_Store
 Thumbs.db
 
