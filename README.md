@@ -96,6 +96,7 @@ Presentation review notes:
 - Art/design feedback: `docs/art-design-feedback.md`
 - Demo script: `docs/demo-script.md`
 - Analysis methods and technology: `docs/analysis-methods-and-tech.md`
+- Differentiation vs generative AI PDF analysis: `docs/differentiation-vs-generative-ai.md`
 
 ## Verify
 
