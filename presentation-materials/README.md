@@ -5,7 +5,9 @@
 ## 폴더 구성
 
 - `images/`: 로컬 데모 서비스(`http://127.0.0.1:8000`)를 실제 브라우저에서 실행하며 캡처한 발표용 화면 이미지
+- `visuals/`: 서비스 구조, 분석 흐름, 차별점, 로드맵을 설명하기 위해 코드로 생성한 16:9 발표 보조 이미지
 - `docs/image-usage-guide.md`: 각 이미지가 발표에서 맡는 역할, 권장 슬라이드, 발표 포인트
+- `docs/visual-asset-guide.md`: `visuals/` 이미지별 사용 목적과 발표 멘트
 - `docs/presentation-overview.md`: HWP 발표개요서 양식에 맞춰 작성한 발표개요서 원고
 - `docs/presentation-overview.docx`: 발표개요서 원고의 Word 문서 버전
 - `docs/slide-outline.md`: 발표 슬라이드 구성안
@@ -19,8 +21,9 @@
 1. `docs/presentation-overview.md`로 제출용 개요서 내용을 검토합니다.
 2. `docs/slide-outline.md`를 기준으로 발표 슬라이드를 만듭니다.
 3. `docs/image-usage-guide.md`를 보며 `images/`의 화면 캡처를 배치합니다.
-4. `docs/speaker-notes.md`로 발표 흐름을 연습합니다.
-5. `docs/judge-qna.md`로 질의응답을 준비합니다.
+4. `docs/visual-asset-guide.md`를 보며 개념도와 비교 이미지를 보강합니다.
+5. `docs/speaker-notes.md`로 발표 흐름을 연습합니다.
+6. `docs/judge-qna.md`로 질의응답을 준비합니다.
 
 ## 핵심 메시지
 
