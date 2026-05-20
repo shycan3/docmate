@@ -552,15 +552,27 @@ def shot_4(page) -> Path:
         .app-shell { width: 1440px; margin: 0 auto; padding: 10px 24px 34px; }
         .intake { display: none !important; }
         .results { display: block !important; }
-        .result-heading, .eligibility-banner, .result-stat-grid, .insight-grid, .meta-list, .warning-list { display: none !important; }
-        .result-grid { grid-template-columns: 1.1fr 0.9fr; }
-        .warning-list { padding-top: 6px; }
+        .result-heading, .eligibility-banner, .result-stat-grid, .insight-grid, details.collapsible-section, .trust-note { display: none !important; }
+        .result-grid {
+          grid-template-columns: 1.1fr 0.9fr;
+          gap: 24px;
+          padding: 154px 10px 12px;
+          border-radius: 24px;
+          background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+        }
+        .result-grid > section {
+          min-height: 170px;
+          background: #ffffff;
+          box-shadow: 0 12px 32px rgba(15, 23, 42, 0.06);
+        }
+        .warning-list { display: grid !important; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; padding-top: 6px; }
         .warning-item { min-height: 76px; }
         .eligibility-banner { box-shadow: 0 24px 64px rgba(220, 38, 38, 0.12); }
+        #checklist, .action-bar { display: none !important; }
         body { background: linear-gradient(180deg, #fbfdff 0%, #f3f6fb 100%); }
         """,
     )
-    path, clip = capture_tight(page, "04-risk-detection.png", [".eligibility-banner", "#resultStats", ".result-grid"], padding=48)
+    path, clip = capture_tight(page, "04-risk-detection.png", [".result-grid"], padding=0)
     top_row = union_boxes(
         [
             element_box(page.locator(".result-grid > section").nth(0), padding=8),
@@ -575,10 +587,6 @@ def shot_4(page) -> Path:
         ],
         padding=6,
     )
-    # ensure bottom_row sits below top_row with a small gap
-    if not (bottom_row[1] >= top_row[3] + 8):
-        shift = (top_row[3] + 12) - bottom_row[1]
-        bottom_row = (bottom_row[0], bottom_row[1] + shift, bottom_row[2], bottom_row[3] + shift)
     annotate_from_boxes(
         path,
         clip,
@@ -587,10 +595,10 @@ def shot_4(page) -> Path:
             {"box": bottom_row, "label": "", "color": (245, 158, 11, 255), "position": "right"},
         ],
     )
-    # draw safe fixed labels near top-left to avoid any header overlap
+    # Draw a compact legend in the reserved top band so labels never cover content.
     add_fixed_labels(path, [
-        {"text": "지원 대상 / 지원 내용", "pos": (18, 34), "color": (220, 38, 38, 255)},
-        {"text": "준비 서류 / 유의사항", "pos": (18, 86), "color": (245, 158, 11, 255)},
+        {"text": "대상·지원 내용", "pos": (30, 88), "color": (220, 38, 38, 255)},
+        {"text": "서류·위험 조건", "pos": (250, 88), "color": (245, 158, 11, 255)},
     ])
     return path
 
