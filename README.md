@@ -97,6 +97,8 @@ Presentation review notes:
 - Demo script: `docs/demo-script.md`
 - Analysis methods and technology: `docs/analysis-methods-and-tech.md`
 - Differentiation vs generative AI PDF analysis: `docs/differentiation-vs-generative-ai.md`
+- Judge persona Q&A feedback round: `docs/judge-persona-qna-feedback-2026-05-20.md`
+- Critical judge Q&A answers: `docs/judge-critical-qna-2026-05-20.md`
 
 ## Verify
 
