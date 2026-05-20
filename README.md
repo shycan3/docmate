@@ -95,6 +95,7 @@ Presentation review notes:
 - Judge feedback: `docs/judge-feedback.md`
 - Art/design feedback: `docs/art-design-feedback.md`
 - Demo script: `docs/demo-script.md`
+- Analysis methods and technology: `docs/analysis-methods-and-tech.md`
 
 ## Verify
 
